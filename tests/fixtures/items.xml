@@ -8,7 +8,7 @@
 			</xml>
 		</some>
 	</params>
-	<item id=1>
+	<item id="1">
 		<some>
 			<xml>
 				<data>
@@ -16,13 +16,13 @@
 			</xml>
 		</some>
 	</item>
-	<item id=2>only text value</item>
-	<item id=3>only text value</item>
-	<item id=4>only text value</item>
-	<item id=5>only text value</item>
-	<item id=6>only text value</item>
-	<item id=7>only text value</item>
-	<item id=8>only text value</item>
-	<item id=9>only text value</item>
-	<item id=10>only text value</item>
+	<item id="2">only text value</item>
+	<item id="3">only text value</item>
+	<item id="4">only text value</item>
+	<item id="5">only text value</item>
+	<item id="6">only text value</item>
+	<item id="7">only text value</item>
+	<item id="8">only text value</item>
+	<item id="9">only text value</item>
+	<item id="10">only text value</item>
 </items>

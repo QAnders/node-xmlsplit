@@ -1,6 +1,7 @@
 var fs = require('fs')
   , path = require('path')
   , should = require('should')
+  , parser = require('fast-xml-parser').XMLValidator
   , XmlSplit = require('../lib/xmlsplit')
 
 describe('XmlSplit', function() {
@@ -31,6 +32,7 @@ describe('XmlSplit', function() {
     it('should split all items', function(done) {
     var count = 0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
       }).on('end', function() {
         count.should.be.eql(10)
@@ -40,6 +42,7 @@ describe('XmlSplit', function() {
 
     it('should split first item', function(done) {
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         data.toString().should.eql(firstDoc.trim())
         done() // dont care about all remining items
       })
@@ -64,6 +67,7 @@ describe('XmlSplit', function() {
 
       var count=0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
         if (count === 1) {
           data.toString().should.eql(firstDoc.trim())
@@ -92,6 +96,7 @@ describe('XmlSplit', function() {
 
       var count=0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
         if (count === 1) {
           data.toString().should.eql(firstDoc.t())
@@ -118,6 +123,7 @@ describe('XmlSplit', function() {
 
       var count=0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
         if (count === 1) {
           data.toString().should.eql(firstDoc.t())
@@ -142,6 +148,7 @@ describe('XmlSplit', function() {
         stream.pipe(xmlSplit)
         var count = 0
         xmlSplit.on('data', function(data) {
+          (parser.validate(data.toString())).should.eql.true
           count++
         }).on('end', function() {
           var expectedNumberOfChunks = batchSize < 10 ? Math.ceil(10 / batchSize) : 1
@@ -159,6 +166,7 @@ describe('XmlSplit', function() {
       stream.pipe(xmlSplit)
       var count = 0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
         if (count === 1) {
           data.toString().should.eql(fs.readFileSync(path.resolve(__dirname, 'fixtures/first_item-autodetect.xml'), 'utf8').trim())
@@ -185,6 +193,7 @@ describe('XmlSplit', function() {
 
       var count = 0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
       }).on('end', function() {
         count.should.be.eql(2)
@@ -204,6 +213,7 @@ describe('XmlSplit', function() {
 
       var count = 0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
       }).on('end', function() {
         count.should.be.eql(2)
@@ -229,6 +239,7 @@ describe('XmlSplit', function() {
 
       var count = 0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
       }).on('end', function() {
         count.should.be.eql(2)
@@ -248,9 +259,59 @@ describe('XmlSplit', function() {
 
       var count = 0
       xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
         count++
       }).on('end', function() {
         count.should.be.eql(2)
+        done()
+      })
+    })
+
+
+  })
+
+  describe('XML input file with nested child tag should return with nested tag intact', function() {
+
+    var xmlSplit
+      , fixtureFilename = 'fixtures/nested-element.xml'
+
+    before(function() {
+      xmlSplit = new XmlSplit(1, 'test')
+    })
+
+    it('should parse file', function(done) {
+      var stream = fs.createReadStream(path.resolve(__dirname, fixtureFilename))
+      stream.pipe(xmlSplit)
+
+      var count = 0
+      xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
+        count++
+        data.toString().should.containEql('</test></tests></root>')
+      }).on('end', function() {
+        count.should.be.eql(3)
+        done()
+      })
+    })
+
+    it('should parse file line by line', function(done) {
+      var xmlSplit = new XmlSplit(1, 'test')
+
+      fs.readFileSync(path.resolve(__dirname, fixtureFilename), 'utf8')
+      .split(/\n/)
+      .forEach(function(line) {
+        xmlSplit.write(line + "\n", 'utf8')
+      })
+      xmlSplit.end()
+
+      var count = 0
+      xmlSplit.on('data', function(data) {
+        (parser.validate(data.toString())).should.eql.true
+        count++
+        data.toString().should.containEql('<header>A header value</header>')
+        data.toString().should.containEql('</test></tests></root>')
+      }).on('end', function() {
+        count.should.be.eql(3)
         done()
       })
     })
